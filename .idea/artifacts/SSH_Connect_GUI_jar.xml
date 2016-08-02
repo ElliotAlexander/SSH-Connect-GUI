@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SSH-Connect-GUI:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SSH_Connect_GUI_jar</output-path>
+    <root id="archive" name="SSH-Connect-GUI.jar">
+      <element id="module-output" name="SSH-Connect-GUI" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../jsch-0.1.53.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
