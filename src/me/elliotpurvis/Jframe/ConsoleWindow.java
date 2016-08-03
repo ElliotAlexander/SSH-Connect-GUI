@@ -97,6 +97,12 @@ public class ConsoleWindow extends JFrame{
             channel.setOutputStream(out);
             channel.connect(3000);
             System.out.println("Connected.");
+            boolean connectionCheck = true;
+            while(connectionCheck){
+                if(!(session.isConnected() || channel.isConnected())){
+
+                }
+            }
 
         } catch (JSchException e){
             System.out.println("Exception thrown with error " + e.getCause());

@@ -7,6 +7,7 @@ import javax.swing.*;
 /**
  * Created by elliot on 02/08/16.
  */
+
 public class Main {
 
     private Main main;

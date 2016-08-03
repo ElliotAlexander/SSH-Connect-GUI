@@ -8,6 +8,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * Created by elliot on 02/08/16.
@@ -24,12 +25,13 @@ public class InputArea extends InputStream {
         consoleTp.setShow(TextPrompt.Show.FOCUS_LOST);
         inputarea.setPreferredSize(new Dimension(560, 40));
         inputarea.setVisible(true);
-        // Fire listener for input area when enter key is pressed .
         inputarea.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyChar() == '\n') {
-                    contents = inputarea.getText().getBytes();
+                    byte[] tmp = inputarea.getText().getBytes();
+                    contents = Arrays.copyOf(tmp, tmp.length + 1);
+                    contents[contents.length - 1] = '\n';
                     pointer = 0;
                     inputarea.setText("");
                 }

@@ -19,7 +19,9 @@ public class TextOutputArea extends JPanel {
         setLayout(new BorderLayout());
         add(new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-        System.setOut(new PrintStream(sshOutputStream));
+        PrintStream outputStream = new PrintStream(sshOutputStream);
+        System.setOut(outputStream);
+        System.setErr(outputStream);
     }
 
     public ConsoleOutputStream getSshOutputStream(){
