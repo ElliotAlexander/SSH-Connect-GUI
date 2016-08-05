@@ -9,7 +9,10 @@ import me.elliotpurvis.Main;
 import javax.swing.*;
 import java.awt.*;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 /**
  * Created by elliot on 02/08/16.
@@ -23,10 +26,29 @@ public class ConsoleWindow extends JFrame{
     private OutputStream out;
     private InputArea in;
 
+    private PipedInputStream pIn;
+    private PipedOutputStream pOut;
+
 
     public ConsoleWindow(int port, String host, String user, char[] password){
         super("Console");
         jsch = new JSch();
+
+
+        //
+        // Configure input area
+        //
+        JTextField inputTextField = new JTextField();
+        add(inputTextField);
+
+
+        pIn = new PipedInputStream();
+        try {
+            pOut = new PipedOutputStream(pIn);
+            in = new InputArea(inputTextField, pOut);
+        } catch(IOException e){
+            e.printStackTrace();
+        }
 
 
         this.password = password;
@@ -57,12 +79,7 @@ public class ConsoleWindow extends JFrame{
         setVisible(true);
 
 
-        //
-        // Configure input area
-        //
-        JTextField inputTextField = new JTextField();
-        in = new InputArea(inputTextField);
-        add(inputTextField);
+
 
         //
         // Bounds
@@ -93,21 +110,13 @@ public class ConsoleWindow extends JFrame{
 
 
             Channel channel = session.openChannel("shell");
-            channel.setInputStream(in);
+            channel.setInputStream(pIn);
             channel.setOutputStream(out);
             channel.connect(3000);
             System.out.println("Connected.");
-
         } catch (JSchException e){
             System.out.println("Exception thrown with error " + e.getCause());
-            if(Main.verboseLogging){
-                e.printStackTrace();
-            }
-        } catch (Exception e){
-            System.out.println("unknown error : " + e.getCause() + " || " + e.getMessage());
-            if(Main.verboseLogging){
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
     }
 }

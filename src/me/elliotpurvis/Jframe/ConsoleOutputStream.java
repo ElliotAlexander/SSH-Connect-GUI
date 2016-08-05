@@ -35,6 +35,7 @@ public class ConsoleOutputStream extends OutputStream {
 
         if (b == '\n') {
             final String text = sb.toString() + "\n";
+
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     textArea.append(text);
@@ -44,6 +45,7 @@ public class ConsoleOutputStream extends OutputStream {
             sb.append(title + "> ");
             return;
         }
+
 
         sb.append((char) b);
     }

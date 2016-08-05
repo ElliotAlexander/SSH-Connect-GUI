@@ -13,15 +13,13 @@ import java.awt.event.ActionListener;
  */
 public class CredentialsWindow extends JFrame {
 
-    private final Main main;
 
     private final JTextField hostname,user;
     private final JPasswordField password;
     private final JButton connect, reset;
 
-    public CredentialsWindow(Main main) {
+    public CredentialsWindow() {
         super("SSH - Connect");
-        this.main = main;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Centre the winddow, regardless of screen resolution.  Must be called after setVisible.

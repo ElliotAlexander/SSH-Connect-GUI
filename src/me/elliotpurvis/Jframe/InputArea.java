@@ -7,19 +7,15 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import java.io.PipedOutputStream;
 
 /**
  * Created by elliot on 02/08/16.
  */
-public class InputArea extends InputStream {
-
-    byte[] contents;
-    int pointer = 0;
+public class InputArea {
 
 
-    public InputArea(JTextField inputarea) {
+    public InputArea(final JTextField inputarea, final PipedOutputStream pOut) {
 
         TextPrompt consoleTp = new TextPrompt(">> ", inputarea);
         consoleTp.setShow(TextPrompt.Show.FOCUS_LOST);
@@ -30,19 +26,17 @@ public class InputArea extends InputStream {
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyChar() == '\n') {
                     byte[] tmp = inputarea.getText().getBytes();
-                    contents = Arrays.copyOf(tmp, tmp.length + 1);
-                    contents[contents.length - 1] = '\n';
-                    pointer = 0;
+                    try {
+                        pOut.write(tmp, 0, tmp.length);
+                        pOut.write('\n');
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                     inputarea.setText("");
+
+                    super.keyReleased(e);
                 }
-                super.keyReleased(e);
             }
         });
-    }
-
-    @Override
-    public int read() throws IOException {
-        if (pointer >= contents.length) return -1;
-        return this.contents[pointer++];
     }
 }
