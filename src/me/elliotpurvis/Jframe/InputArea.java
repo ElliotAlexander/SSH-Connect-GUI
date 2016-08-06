@@ -1,9 +1,6 @@
 package me.elliotpurvis.Jframe;
 
-import me.elliotpurvis.TextPrompt;
-
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -16,11 +13,6 @@ public class InputArea {
 
 
     public InputArea(final JTextField inputarea, final PipedOutputStream pOut) {
-
-        TextPrompt consoleTp = new TextPrompt(">> ", inputarea);
-        consoleTp.setShow(TextPrompt.Show.FOCUS_LOST);
-        inputarea.setPreferredSize(new Dimension(560, 40));
-        inputarea.setVisible(true);
         inputarea.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -33,7 +25,6 @@ public class InputArea {
                         e1.printStackTrace();
                     }
                     inputarea.setText("");
-
                     super.keyReleased(e);
                 }
             }

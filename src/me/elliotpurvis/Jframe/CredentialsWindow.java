@@ -1,6 +1,6 @@
 package me.elliotpurvis.Jframe;
 
-import me.elliotpurvis.Main;
+import me.elliotpurvis.SSH;
 import me.elliotpurvis.TextPrompt;
 
 import javax.swing.*;
@@ -14,19 +14,28 @@ import java.awt.event.ActionListener;
 public class CredentialsWindow extends JFrame {
 
 
+
+
     private final JTextField hostname,user;
     private final JPasswordField password;
     private final JButton connect, reset;
+    private final JCheckBox strictHostCheckbox, newWindowCheckbox;
+    private final JLabel hostKeyCheckingText, newWindowText;
+    private boolean hostKeyChecking, openInNewWindow;
+    private ConsoleWindow cw;
+    private SSH ssh;
 
     public CredentialsWindow() {
         super("SSH - Connect");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 
         // Centre the winddow, regardless of screen resolution.  Must be called after setVisible.
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(((int)screensize.getWidth() / 2)-200, ((int)screensize.getHeight() /2)-135);
 
         SpringLayout layout = new SpringLayout();
+        ssh = new SSH();
 
         try {
             // Set System L&F
@@ -52,7 +61,7 @@ public class CredentialsWindow extends JFrame {
 
 
         setLayout(layout);
-        setSize(210, 400);
+        setSize(400, 400);
         setPreferredSize(new Dimension(400,270));
         setVisible(true);
 
@@ -106,10 +115,31 @@ public class CredentialsWindow extends JFrame {
         reset.setVisible(true);
         add(reset);
 
+        // Strict host key checking options
+        strictHostCheckbox = new JCheckBox();
+        strictHostCheckbox.setVisible(true);
+        strictHostCheckbox.setSelected(true);
+        add(strictHostCheckbox);
+
+        // Strict host checking text
+        hostKeyCheckingText = new JLabel("Strict host key checking");
+        hostKeyCheckingText.setVisible(true);
+        add(hostKeyCheckingText);
+
+        // New window Checkbox
+        newWindowCheckbox= new JCheckBox();
+        newWindowCheckbox.setVisible(true);
+        newWindowCheckbox.setSelected(true);
+        add(newWindowCheckbox);
+
+        // New window text
+        newWindowText = new JLabel("Open in new Console window");
+        newWindowText.setVisible(true);
+        add(newWindowText);
+
 
         connect.addActionListener(buttonListener);
         reset.addActionListener(buttonListener);
-
         resetTextPrompts();
 
 
@@ -127,6 +157,20 @@ public class CredentialsWindow extends JFrame {
 
         layout.putConstraint(SpringLayout.WEST, reset, 30, SpringLayout.WEST, this);
         layout.putConstraint(SpringLayout.NORTH, reset, 280, SpringLayout.NORTH, this);
+
+        layout.putConstraint(SpringLayout.WEST, strictHostCheckbox, 200, SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.NORTH, strictHostCheckbox, 30, SpringLayout.NORTH, this);
+
+        layout.putConstraint(SpringLayout.WEST, hostKeyCheckingText, 222,  SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.NORTH, hostKeyCheckingText, 33, SpringLayout.NORTH, this);
+
+        layout.putConstraint(SpringLayout.WEST, newWindowCheckbox, 200, SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.NORTH, newWindowCheckbox, 50, SpringLayout.NORTH, this);
+
+        layout.putConstraint(SpringLayout.WEST, newWindowText, 222, SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.NORTH, newWindowText, 53, SpringLayout.NORTH, this);
+
+
     }
 
     private void resetTextPrompts(){
@@ -156,20 +200,39 @@ public class CredentialsWindow extends JFrame {
                     new ErrorWindow("Invalid Credentials!", "Enter valid login credentials.");
 
                 } else {
+                    if(strictHostCheckbox.isSelected()){
+                        hostKeyChecking = true;
+                    } else {
+                        hostKeyChecking = false;
+                    }
+
+                    String parsedHost = hostname.getText();
+                    int port;
+
                     if (hostname.getText().contains(":")) {
                         String[] hostInputArray = hostname.getText().split(":");
-                        String parsedHost = hostInputArray[0];
-                        int port = Integer.parseInt(hostInputArray[1]);
-
-
-                        new ConsoleWindow(port, parsedHost, user.getText(), password.getPassword());
+                        parsedHost = hostInputArray[0];
+                        port = Integer.parseInt(hostInputArray[1]);
                     } else {
-                        new ConsoleWindow(22, hostname.getText(), user.getText(), password.getPassword());
+                        port = 22;
                     }
+                    openConsoleWindow(parsedHost, port);
+
                 }
             } else if (actionEvent.getSource() == reset) {
                     resetTextPrompts();
             }
         }
     };
+
+
+    private void openConsoleWindow(String host, int port){
+        if(cw == null){
+            cw = new ConsoleWindow();
+
+            ssh.openNewSession(user.getText(), host, port, password.getPassword(), hostKeyChecking, cw);
+        } else {
+            // TODO Add tabbed support for existing Console window implementation.
+        }
+    }
 }

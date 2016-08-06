@@ -1,14 +1,9 @@
 package me.elliotpurvis.Jframe;
 
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import me.elliotpurvis.Main;
+import me.elliotpurvis.TextPrompt;
 
 import javax.swing.*;
 import java.awt.*;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
@@ -19,49 +14,42 @@ import java.io.PipedOutputStream;
  */
 public class ConsoleWindow extends JFrame{
 
-    private final String host, user;
-    private final int port;
-    private final char[] password;
-    private final JSch jsch;
     private OutputStream out;
-    private InputArea in;
-
     private PipedInputStream pIn;
     private PipedOutputStream pOut;
 
-
-    public ConsoleWindow(int port, String host, String user, char[] password){
+    public ConsoleWindow(){
         super("Console");
-        jsch = new JSch();
 
 
         //
         // Configure input area
         //
         JTextField inputTextField = new JTextField();
+        TextPrompt consoleTp = new TextPrompt(">> ", inputTextField);
+        consoleTp.setShow(TextPrompt.Show.FOCUS_LOST);
+        inputTextField.setPreferredSize(new Dimension(560, 40));
+        inputTextField.setVisible(true);
         add(inputTextField);
 
 
         pIn = new PipedInputStream();
         try {
             pOut = new PipedOutputStream(pIn);
-            in = new InputArea(inputTextField, pOut);
         } catch(IOException e){
             e.printStackTrace();
         }
 
+        new InputArea(inputTextField, pOut);
 
-        this.password = password;
-        this.port = port;
-        this.host = host;
-        this.user = user;
+
 
         //
         // Configure Window
         //
         SpringLayout layout = new SpringLayout();
         setLayout(layout);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(600,450));
         setSize(new Dimension(600, 450));
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -84,39 +72,23 @@ public class ConsoleWindow extends JFrame{
         //
         // Bounds
         //
-        layout.putConstraint(SpringLayout.NORTH, inputTextField, 410, SpringLayout.NORTH, this);
-        layout.putConstraint(SpringLayout.WEST, inputTextField, 20, SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.NORTH, inputTextField, 340, SpringLayout.NORTH, this);
+        layout.putConstraint(SpringLayout.WEST, inputTextField, 15, SpringLayout.WEST, this);
 
         layout.putConstraint(SpringLayout.NORTH, outputArea, 20, SpringLayout.NORTH, this);
-        layout.putConstraint(SpringLayout.WEST, outputArea, 20, SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.WEST, outputArea, 15, SpringLayout.WEST, this);
 
-        // Connect.
-        SSHConnect();
+
+        // Take inputted channel and define output and input streams for it as initiallised above.
+
     }
 
-    private void SSHConnect(){
-        try {
-            Session session = jsch.getSession(user, host, port);
 
+    public PipedInputStream getpIn(){
+        return pIn;
+    }
 
-            // Disable key checking
-            java.util.Properties config = new java.util.Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-
-            session.setPassword(String.valueOf(password));
-            System.out.println("Attempting to connect to " + host + " on port " + port + " ....");
-            session.connect(3000);
-
-
-            Channel channel = session.openChannel("shell");
-            channel.setInputStream(pIn);
-            channel.setOutputStream(out);
-            channel.connect(3000);
-            System.out.println("Connected.");
-        } catch (JSchException e){
-            System.out.println("Exception thrown with error " + e.getCause());
-            e.printStackTrace();
-        }
+    public OutputStream getOut(){
+        return out;
     }
 }

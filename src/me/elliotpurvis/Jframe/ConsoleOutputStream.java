@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Created by elliot on 02/08/16.
- */
 public class ConsoleOutputStream extends OutputStream {
 
     private final JTextArea textArea;
@@ -34,7 +31,13 @@ public class ConsoleOutputStream extends OutputStream {
             return;
 
         if (b == '\n') {
-            final String text = sb.toString() + "\n";
+
+            // Filter out VT100 terminal codes. (ASCII)
+            String tmp = sb.toString() + "\n";
+            tmp = tmp.replaceAll("\u001B\\[[\\d;]*[^\\d;]","");
+            final String text = tmp;
+
+
 
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
