@@ -40,11 +40,9 @@ public class SSH {
             System.out.println("Attempting to connect to " + host + " on port " + port + " ....");
             session.connect(3000);
             Channel channel = session.openChannel("shell");
-
-            channel.connect(3000);
-
             channel.setInputStream(cw.getpIn());
             channel.setOutputStream(cw.getOut());
+            channel.connect(3000);
 
 
         } catch (JSchException e){
